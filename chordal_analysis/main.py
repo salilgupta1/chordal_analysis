@@ -2,7 +2,7 @@ from containers import *
 import os
 import midi
 from collections import Counter
-
+# Niki Patel
 # global vars
 node_array = []
 edge_matrix = None
