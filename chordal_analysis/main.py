@@ -12,11 +12,12 @@ NOTE_ON_EVENT = 144
 NOTE_OFF_EVENT = 128
 
 base_templates = {"Major Triad":[(0,4,7), .436],
-					"Dom 7":[(0,4,7,10), .219],
-					"Minor Triad":[(0,3,7),.194],
-					"Fully Diminished 7th":[(0,3,6,9),.044],
-					"Half Diminished 7th":[(0,3,6,10),.037],
-					"Diminished Triad":[(0,3,6),0.018]
+					"C_DOM_7":[(0,4,7,10), .219],
+					"C_MIN":[(0,3,7),.194],
+					"C_FD_7":[(0,3,6,9),.044],
+					"C_HD_7":[(0,3,6,10),.037],
+					"C_DIM":[(0,3,6),0.018],
+					 
 				}
 
 def read_midi_files(path):
