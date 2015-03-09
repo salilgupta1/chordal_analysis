@@ -92,11 +92,31 @@ def score_edges():
 					score = score if base_templates[chord_name][1] > base[1] else P - (M + N)
 					chord_name = chord_name if base_templates[chord_name][1] > base[1] else chord
 			edge_matrix[row][col] = Edge(chord_name, score)
-	print edge_matrix[0][3].chord_name
-	print edge_matrix[0][3].score
+	print edge_matrix[0][1].chord_name
+	print edge_matrix[0][1].score
+	print edge_matrix[n-2][n-1].score
 
-def findLongestPath():
-	pass
+def findLongestPath(start, end, graph):
+
+
+	n = len(graph)
+	LOWDIST=float("-inf")
+	dist = dict((x, LOWDIST) for x in xrange(0,n))
+	dist[start[1]] = 0
+	comesfrom = dict()
+	for row in xrange(0,n): #u
+		for col in  xrange(row+1,n): #v
+		#if dist(v) < dist(u) + score of (u,v)
+			if dist[col] < dist[row] + graph[row][col].score:
+				comesfrom[row] = col
+	maxpath = [end]
+	while maxpath[-1] != start:
+		print comesfrom[maxpath[-1]]
+		maxpath.append(comesfrom[maxpath[-1]])
+	maxpath.reverse()
+	return maxpath
+
+
 
 def create_chord_name():
 	pass
@@ -108,5 +128,7 @@ def main():
 
 	create_edge_matrix()
 	score_edges()
+	n = len(edge_matrix)
+	findLongestPath((0,1),(n-2,n-1),edge_matrix)
 
 main()
