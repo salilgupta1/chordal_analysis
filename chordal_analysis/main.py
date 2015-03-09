@@ -170,27 +170,46 @@ def score_edges():
 	print edge_matrix[0][1].score
 	print edge_matrix[n-2][n-1].score
 
-def findLongestPath(start, end, graph):
 
+def findLongestPath(start, end, graph):
 
 	n = len(graph)
 	LOWDIST=float("-inf")
 	dist = dict((x, LOWDIST) for x in xrange(0,n))
-	dist[start[1]] = 0
+	dist[start[0]] = 0
 	comesfrom = dict()
 	for row in xrange(0,n): #u
 		for col in  xrange(row+1,n): #v
 		#if dist(v) < dist(u) + score of (u,v)
-			if dist[col] < dist[row] + graph[row][col].score:
-				comesfrom[row] = col
-	maxpath = [end]
-	while maxpath[-1] != start:
-		print comesfrom[maxpath[-1]]
+			if dist[col] < (dist[row] + graph[row][col].score):
+				dist[col] = dist[row] + graph[row][col].score
+				comesfrom[col] = row
+
+	maxpath = [end[1]]
+	while maxpath[-1] != start[0]:
 		maxpath.append(comesfrom[maxpath[-1]])
 	maxpath.reverse()
+	for i in range(0, len(maxpath)-1):
+		val = (maxpath[i],maxpath[i+1])
+		maxpath[i] = val
+	maxpath.pop()
+#	print maxpath
 	return maxpath
 
-
+def test_longest_path():
+	size = 6
+	test = [[Edge("",float("-inf")) for i in range(size)] for i in range(size)]
+	test[0][1] = Edge("",5) 
+	test[0][2] = Edge("",3) 
+	test[1][3] = Edge("",6) 
+	test[1][2] = Edge("",2) 
+	test[2][4] = Edge("",4) 
+	test[2][5] = Edge("",2) 
+	test[2][3] = Edge("",7) 
+	test[3][5] = Edge("",1) 
+	test[3][4] = Edge("",-1) 
+	test[4][5] = Edge("",-2) 
+	print findLongestPath((0,1), (4,5), test)
 
 def create_chord_name():
 	pass
@@ -203,6 +222,9 @@ def main():
 	create_edge_matrix()
 	score_edges()
 	n = len(edge_matrix)
-	findLongestPath((0,1),(n-2,n-1),edge_matrix)
+	maxpath = findLongestPath((0,1),(n-2,n-1),edge_matrix)
+	#for edge in maxpath:
+		#print edge_matrix[edge[0]][edge[1]].chord_name
+	test_longest_path()
 
 main()
