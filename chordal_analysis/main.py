@@ -223,8 +223,8 @@ def main():
 	score_edges()
 	n = len(edge_matrix)
 	maxpath = findLongestPath((0,1),(n-2,n-1),edge_matrix)
-	#for edge in maxpath:
-		#print edge_matrix[edge[0]][edge[1]].chord_name
-	test_longest_path()
+	for edge in maxpath:
+		print edge_matrix[edge[0]][edge[1]].chord_name
+	#test_longest_path()
 
 main()
