@@ -1,25 +1,14 @@
 from containers import *
 import os
-import midi
+import midi, pprint
 from collections import Counter
-# Niki Patel
-# global vars
-node_array = []
-edge_matrix = None
 
 # const vars
 NOTE_ON_EVENT = 144
 NOTE_OFF_EVENT = 128
-
-base_templates = {"Major Triad":[(0,4,7), .436],
-					"Dom 7":[(0,4,7,10), .219],
-					"Minor Triad":[(0,3,7),.194],
-					"Fully Diminished 7th":[(0,3,6,9),.044],
-					"Half Diminished 7th":[(0,3,6,10),.037],
-					"Diminished Triad":[(0,3,6),0.018]
-				}
-
-all_templates = {"C_maj":[(0,4,7), .436],
+#test_template = {"E_fdim":[(4,7,10,1),.044],"G_fdim":[(7,10,1,4),.044],"Bb_fdim":[(10,1,4,7),.044],"Db_fdim":[(1,4,7,10),.044]}
+all_templates = {
+					"C_maj":[(0,4,7), .436],
 					"C_dom7":[(0,4,7,10), .219],
 					"C_min":[(0,3,7),.194],
 					"C_fdim":[(0,3,6,9),.044],
@@ -97,15 +86,22 @@ def read_midi_files(path):
 	pattern = midi.read_midifile(path)
 	pattern.make_ticks_abs()
 	wanted_events = []
+	# temp change back to pattern[0] later
 	for event in pattern[0]:
-		if event.statusmsg == NOTE_OFF_EVENT or event.statusmsg == NOTE_ON_EVENT:
+		if event.statusmsg == NOTE_ON_EVENT or event.statusmsg == NOTE_OFF_EVENT:
 			wanted_events.append(event)
-
 	return wanted_events
 
+# this code works
 def find_minimal_segments(events):
+	pprint.pprint(events)
+	node_array = []
+	# temp change back to curr_tick = 0 later
 	curr_tick = 0
 	partition = MinimalSegment(curr_tick, [])
+	count = 0
+
+
 	for event in events:
 		if event.tick == curr_tick:
 			partition.addEvent(event)
@@ -114,63 +110,95 @@ def find_minimal_segments(events):
 			curr_tick = event.tick
 			partition = MinimalSegment(curr_tick,[])
 
-def create_edge_matrix():
-	size = len(node_array)
-	global edge_matrix
-	edge_matrix = [[float("-inf") for i in range(size)] for i in range(size)]
+			# add event to new partition
+			partition.addEvent(event)
 
+	# add very last partition
+	node_array.append(partition)
+	# for node in node_array:
+	# 	print node.events
+	return node_array
 
-def score_edges():
+# this code works
+def score_edges(edge_matrix,node_array):
 	# traverse edge matrix
 	# at each point score the edge and store chord name
 	n = len(edge_matrix)
 	for row in xrange(n):
+		# temp change back to row+1
 		for col in xrange(row+1,n):
 			
 			# now we are scoring an edge
 			# holds note weights across all minimal segments in an edge
 			note_weights = Counter({}) 
 			for i in xrange(row, col+1):
+
 				# getting each minimal segment
-				# inside an edge
 
 				# holds the weights of a note for a minimal segment
 				weights = Counter({})
 				for note in node_array[i].events:
 					if note[1] !=0:
 						# velocity isn't 0
-						weights[note[0]%12] = 1
+						weights[note[0]] = 1
 				note_weights += weights
 
-			score = float("-inf")
-			chord_name = ""
-			# key, value of base_templates
-			for chord,base in base_templates.iteritems():
+			max_score = float("-inf")
+			max_chord_name = ""
+
+			# key, value of all_templates
+			
+			for chord,base in all_templates.iteritems():
 				P = 0
 				N = sum(note_weights.values())
 				M = 0 
 
 				# iterate through value tuple
-				for note in base[0]:
-					try:
+				# for note in base[0]:
+				for note in note_weights.keys():
+					if note%12 in base[0]:
 						P += note_weights[note]
 						N -= note_weights[note]
-					except KeyError:
-						M +=1
-				if score < (P - (M+N)):
+
+				notes = [x%12 for x in note_weights.keys()]
+
+				for note in base[0]:
+					if note in notes:
+						pass
+					else:
+						M+=1
+
+				if max_score < (P - (M+N)):
 					# new max template
-					score = P - (M+N)
-					chord_name = chord
-				elif score == (P - (M+N)):
-					# tie, use highest probability
-					score = score if base_templates[chord_name][1] > base[1] else P - (M + N)
-					chord_name = chord_name if base_templates[chord_name][1] > base[1] else chord
-			edge_matrix[row][col] = Edge(chord_name, score)
-	print edge_matrix[0][1].chord_name
-	print edge_matrix[0][1].score
-	print edge_matrix[n-2][n-1].score
+					max_score = P - (M+N)
+					max_chord_name = chord
 
+				elif max_score == (P - (M+N)):
+					# tie using Root Weight
 
+					old_root = all_templates[max_chord_name][0][0]
+					new_root = all_templates[chord][0][0]
+
+					weight_of_old = 0
+					weight_of_new = 0
+					for x in notes:
+						if x % 12 == old_root:
+							weight_of_old += 1
+						elif x % 12 == new_root:
+							weight_of_new +=1
+
+					if weight_of_old < weight_of_new:
+						max_score = P - (M+N)
+						max_chord_name = chord
+
+					elif weight_of_new == weight_of_old:
+
+						# tie, use highest probability
+						max_score = max_score if all_templates[max_chord_name][1] > base[1] else P - (M + N)
+						max_chord_name = max_chord_name if all_templates[max_chord_name][1] > base[1] else chord
+			edge_matrix[row][col] = Edge(max_chord_name, max_score)
+
+# this code works
 def findLongestPath(start, end, graph):
 
 	n = len(graph)
@@ -193,9 +221,9 @@ def findLongestPath(start, end, graph):
 		val = (maxpath[i],maxpath[i+1])
 		maxpath[i] = val
 	maxpath.pop()
-#	print maxpath
 	return maxpath
 
+# this code works:
 def test_longest_path():
 	size = 6
 	test = [[Edge("",float("-inf")) for i in range(size)] for i in range(size)]
@@ -211,20 +239,41 @@ def test_longest_path():
 	test[4][5] = Edge("",-2) 
 	print findLongestPath((0,1), (4,5), test)
 
-def create_chord_name():
-	pass
-
 def main():
 	path = "kpcorpus/ex1a.mid"
 	events = read_midi_files(path)
-	find_minimal_segments(events)
+	node_array = find_minimal_segments(events)
+	# make edge matrix
+	size = len(node_array)
+	edge_matrix = edge_matrix = [[float("-inf") for i in range(size)] for i in range(size)]
 
-	create_edge_matrix()
-	score_edges()
+	score_edges(edge_matrix,node_array)
+	#pprint.pprint(edge_matrix)
+
+	for i in xrange(size):
+		for j in xrange(size):
+			try:
+				print edge_matrix[i][j].chord_name
+				print edge_matrix[i][j].score
+			except:
+				print "INF"
+		print "========================================="
+
 	n = len(edge_matrix)
 	maxpath = findLongestPath((0,1),(n-2,n-1),edge_matrix)
+
+	prev_edge = None
+	for index, edge in enumerate(maxpath):
+		curr_edge = edge_matrix[edge[0]][edge[1]]
+		try:
+			if curr_edge.chord_name == prev_edge.chord_name:
+				maxpath[index - 1] = None
+		except:
+			pass
+		prev_edge = curr_edge
 	for edge in maxpath:
-		print edge_matrix[edge[0]][edge[1]].chord_name
-	#test_longest_path()
+		if edge is not None:
+			print edge_matrix[edge[0]][edge[1]].chord_name
+			print node_array[edge[1]].tick
 
 main()
