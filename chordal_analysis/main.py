@@ -98,20 +98,23 @@ def find_minimal_segments(events):
 	node_array = []
 	# temp change back to curr_tick = 0 later
 	curr_tick = 0
-	partition = MinimalSegment(curr_tick, [])
-	count = 0
+	partition = MinimalSegment(curr_tick, 0, [])
 
+	last_tick = 0
 	for event in events:
+		last_tick = event.tick
 		if event.tick == curr_tick:
 			partition.addEvent(event)
 		else:
+			partition.end_tick = event.tick
 			node_array.append(partition)
 			curr_tick = event.tick
-			partition = MinimalSegment(curr_tick,[])
+			partition = MinimalSegment(curr_tick, 0, [])
 
 			# add event to new partition
 			partition.addEvent(event)
 
+	partition.end_tick = last_tick
 	# add very last partition
 	node_array.append(partition)
 	return node_array
@@ -127,12 +130,13 @@ def score_edges(edge_matrix,node_array):
 			# now we are scoring an edge
 			# holds note weights across all minimal segments in an edge
 			note_weights = Counter({}) 
+			bad_segments = 0
 			for i in xrange(row, col+1):
-
-				# getting each minimal segment
 
 				# holds the weights of a note for a minimal segment
 				weights = Counter({})
+
+				# getting each minimal segment
 				for note in node_array[i].events:
 					if note[1] !=0:
 						# velocity isn't 0
@@ -236,7 +240,7 @@ def test_longest_path():
 	print findLongestPath((0,1), (4,5), test)
 
 def main():
-	path = "kpcorpus/ex10a.mid"
+	path = "kpcorpus/Four_Chords.mid"
 	events = read_midi_files(path)
 	node_array = find_minimal_segments(events)
 
