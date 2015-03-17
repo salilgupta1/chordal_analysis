@@ -94,13 +94,12 @@ def read_midi_files(path):
 
 # this code works
 def find_minimal_segments(events):
-	pprint.pprint(events)
+	#pprint.pprint(events)
 	node_array = []
 	# temp change back to curr_tick = 0 later
 	curr_tick = 0
 	partition = MinimalSegment(curr_tick, [])
 	count = 0
-
 
 	for event in events:
 		if event.tick == curr_tick:
@@ -115,8 +114,6 @@ def find_minimal_segments(events):
 
 	# add very last partition
 	node_array.append(partition)
-	# for node in node_array:
-	# 	print node.events
 	return node_array
 
 # this code works
@@ -125,7 +122,6 @@ def score_edges(edge_matrix,node_array):
 	# at each point score the edge and store chord name
 	n = len(edge_matrix)
 	for row in xrange(n):
-		# temp change back to row+1
 		for col in xrange(row+1,n):
 			
 			# now we are scoring an edge
@@ -199,7 +195,7 @@ def score_edges(edge_matrix,node_array):
 			edge_matrix[row][col] = Edge(max_chord_name, max_score)
 
 # this code works
-def findLongestPath(start, end, graph):
+def find_longest_path(start, end, graph):
 
 	n = len(graph)
 	LOWDIST=float("-inf")
@@ -240,28 +236,30 @@ def test_longest_path():
 	print findLongestPath((0,1), (4,5), test)
 
 def main():
-	path = "kpcorpus/ex1a.mid"
+	path = "kpcorpus/ex10a.mid"
 	events = read_midi_files(path)
 	node_array = find_minimal_segments(events)
+
 	# make edge matrix
 	size = len(node_array)
 	edge_matrix = edge_matrix = [[float("-inf") for i in range(size)] for i in range(size)]
 
 	score_edges(edge_matrix,node_array)
-	#pprint.pprint(edge_matrix)
 
-	for i in xrange(size):
-		for j in xrange(size):
-			try:
-				print edge_matrix[i][j].chord_name
-				print edge_matrix[i][j].score
-			except:
-				print "INF"
-		print "========================================="
+	# print the dag
+	#for i in xrange(size):
+		# for j in xrange(size):
+		# 	try:
+		# 		print edge_matrix[i][j].chord_name
+		# 		print edge_matrix[i][j].score
+		# 	except:
+		# 		print "INF"
+		# print "========================================="
 
 	n = len(edge_matrix)
-	maxpath = findLongestPath((0,1),(n-2,n-1),edge_matrix)
+	maxpath = find_longest_path((0,1),(n-2,n-1),edge_matrix)
 
+	# remove repeated chord_names
 	prev_edge = None
 	for index, edge in enumerate(maxpath):
 		curr_edge = edge_matrix[edge[0]][edge[1]]
@@ -271,6 +269,8 @@ def main():
 		except:
 			pass
 		prev_edge = curr_edge
+
+	# print out the longest path
 	for edge in maxpath:
 		if edge is not None:
 			print edge_matrix[edge[0]][edge[1]].chord_name
