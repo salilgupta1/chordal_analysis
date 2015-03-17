@@ -274,10 +274,43 @@ def main():
 			pass
 		prev_edge = curr_edge
 
-	# print out the longest path
+	new_pattern = midi.Pattern()
+	new_track = midi.Track()
+	new_pattern.append(new_track)
+	old_pattern = midi.read_midifile(path)
+	old_pattern.make_ticks_abs()
+
+	i = 0
 	for edge in maxpath:
 		if edge is not None:
-			print edge_matrix[edge[0]][edge[1]].chord_name
-			print node_array[edge[1]].tick
+			end_tick = node_array[edge[1]].tick
+			
+			while i < len(old_pattern[0]):
+				#copy over from old file
+				event = old_pattern[0][i]
+				if event.tick < end_tick:
+					new_track.append(event)
+					i+=1
+				else:
+					break
+			chord = (edge_matrix[edge[0]][edge[1]]).chord_name
+			#print chord
+			lyric = midi.LyricsEvent(tick=end_tick, text=chord, data=[])	
+			new_track.append(lyric)
+
+						#print edge_matrix[edge[0]][edge[1]].chord_name
+						#print node_array[edge[1]].tick
+
+	#new_pattern
+	midi.write_midifile("answer.mid", new_pattern)
+
+
+
+
+	# # print out the longest path
+	# for edge in maxpath:
+	# 	if edge is not None:
+	# 		print edge_matrix[edge[0]][edge[1]].chord_name
+	# 		print node_array[edge[1]].tick
 
 main()
