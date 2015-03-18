@@ -240,7 +240,7 @@ def test_longest_path():
 	print findLongestPath((0,1), (4,5), test)
 
 def main():
-	path = "kpcorpus/Four_Chords.mid"
+	path = "kpcorpus/ex11a.mid"
 	events = read_midi_files(path)
 	node_array = find_minimal_segments(events)
 
@@ -274,11 +274,16 @@ def main():
 			pass
 		prev_edge = curr_edge
 
-	new_pattern = midi.Pattern()
-	new_track = midi.Track()
-	new_pattern.append(new_track)
+
 	old_pattern = midi.read_midifile(path)
+	form = old_pattern.format
+	res = old_pattern.resolution
+	new_pattern = midi.Pattern(format=form, resolution=res, tracks=[])
+	new_track = midi.Track( )
+	new_pattern.append(new_track)
 	old_pattern.make_ticks_abs()
+	new_pattern.make_ticks_abs()
+
 
 	i = 0
 	for edge in maxpath:
@@ -288,21 +293,48 @@ def main():
 			while i < len(old_pattern[0]):
 				#copy over from old file
 				event = old_pattern[0][i]
-				if event.tick < end_tick:
+				if event.tick <= end_tick:
 					new_track.append(event)
+
 					i+=1
 				else:
 					break
-			chord = (edge_matrix[edge[0]][edge[1]]).chord_name
-			#print chord
-			lyric = midi.LyricsEvent(tick=end_tick, text=chord, data=[])	
+
+
+			chord = "guess: " + (edge_matrix[edge[0]][edge[1]]).chord_name 
+			#print [node_array[edge[1]].events[0][0]]
+			lyric = midi.LyricsEvent(tick=end_tick, text=chord, data = [ord(x) for x in list(chord)])	
 			new_track.append(lyric)
 
-						#print edge_matrix[edge[0]][edge[1]].chord_name
-						#print node_array[edge[1]].tick
 
-	#new_pattern
-	midi.write_midifile("answer.mid", new_pattern)
+
+	while i < len(old_pattern[0])-1:
+				#copy over from old file
+		event = old_pattern[0][i]
+		new_track.append(event)
+		i+=1
+
+
+	
+	#add in end of track after changing ticks back to relative
+	new_pattern.make_ticks_rel()
+	eot = midi.EndOfTrackEvent(tick=0)
+	new_track.append(eot)
+
+	path = "kpcorpus/ex11a.mid"
+	orig_pattern = midi.read_midifile(path)
+	#new_pattern.make_ticks_abs()
+	#new_pattern.make_ticks_rel()
+
+
+
+	midi.write_midifile("kpcorpus/answer.mid", new_pattern)
+
+	print orig_pattern
+	
+	
+
+
 
 
 
