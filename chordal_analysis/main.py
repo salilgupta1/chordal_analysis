@@ -280,8 +280,8 @@ def test_longest_path():
 	test[2][3] = Edge("",7) 
 	test[3][5] = Edge("",1) 
 	test[3][4] = Edge("",-1) 
-	test[4][5] = Edge("",-2) 
-	print find_longest_path((0,1), (4,5), test)
+	test[4][5] = Edge("",-2)
+	print find_longest_path((0,1), (4,5), test) 
 
 def remove_repeat_chords(max_path, edge_matrix):
 	prev_edge = None
@@ -293,6 +293,7 @@ def remove_repeat_chords(max_path, edge_matrix):
 		except:
 			pass
 		prev_edge = curr_edge
+
 
 def evaluate(results, answer_key):
 	# evaluate 
@@ -404,8 +405,50 @@ def main():
 			if edge is not None:
 				result.append([node_array[edge[1]].tick, edge_matrix[edge[0]][edge[1]].chord_name])
 
-		# it don't work :(
 		score = evaluate(result, answer_key)
 		print f, score
 
+		# SAVING OUR GUESS TO FILES IN /kpanswers/
+		old_pattern = midi.read_midifile("kpcorpus/%s" % f)
+		form = old_pattern.format
+		res = old_pattern.resolution
+		new_pattern = midi.Pattern(format=form, resolution=res, tracks=[])
+		new_track = midi.Track( )
+		new_pattern.append(new_track)
+		old_pattern.make_ticks_abs()
+		new_pattern.make_ticks_abs()
+
+		i = 0
+		for edge in max_path:
+			if edge is not None:
+				end_tick = node_array[edge[1]].tick
+				
+				while i < len(old_pattern[0]):
+					#copy over from old file
+					event = old_pattern[0][i]
+					if event.tick <= end_tick:
+						new_track.append(event)
+						i+=1
+					else:
+						break
+
+				chord = "guess: " + (edge_matrix[edge[0]][edge[1]]).chord_name 
+				lyric = midi.LyricsEvent(tick=end_tick, text=chord, data = [ord(x) for x in list(chord)])	
+				new_track.append(lyric)
+
+		while i < len(old_pattern[0])-1:
+			#copy over from old file
+			event = old_pattern[0][i]
+			new_track.append(event)
+			i+=1
+
+		#add in end of track after changing ticks back to relative
+		new_pattern.make_ticks_rel()
+		eot = midi.EndOfTrackEvent(tick=0)
+		new_track.append(eot)
+
+		midi.write_midifile("kpanswers/%s" % f, new_pattern)
 main()
+
+
+
