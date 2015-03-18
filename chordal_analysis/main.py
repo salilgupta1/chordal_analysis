@@ -1,5 +1,5 @@
 from containers import *
-import midi, pprint, re, os
+import midi, pprint, re, os, sys
 from collections import Counter
 import scipy.spatial.distance as e
 
@@ -9,9 +9,7 @@ NOTE_OFF_EVENT = 128
 LYRIC_EVENT = 5
 MIN_SEGMENT_LENGTH  = 60
 PENALTY = .25
-EXTRAS = {
-	
-}
+
 all_templates = {
 					"C_maj":[(0,4,7), .436],
 					"C_dom7":[(0,4,7,10), .219],
@@ -93,6 +91,15 @@ SCORING = {
 	"G#_dim":[(8,11,2),0.018],
 	"G#_hdim":[(8,11,2,6),.037],
 	"A#_dim":[(10,1,4),0.018],
+	"D#_min":[(3,6,10),.194],
+	"Cb_maj":[(11,3,6),.436],
+	"G#_fdim":[(8,11,2,5),.044],
+	"C#_fdim":[(1,4,7,10),.044],
+	"C#_dim":[(1,4,7),0.018],
+	"C#_maj":[(1,5,8),.436],
+	"G#_dom7":[(8,0,3,6), .219],
+	"A#_fdim":[(10,1,4,7),.044],
+	"D#_fdim":[(3,6,9,0),.044]
 }
 
 SCORING.update(all_templates)
@@ -117,6 +124,8 @@ def read_midi_files(path):
 		except AttributeError:
 			pass
 
+	if len(answer_key) == 0:
+		return (wanted_events, False)
 	# format answer_key
 	for i, key in enumerate(answer_key):
 		if i is not 0 and key[1] == answer_key[i - 1][1]:
@@ -152,11 +161,6 @@ def find_minimal_segments(events):
 	partition.end_tick = last_tick
 	node_array.append(partition)
 
-	# for node in node_array:
-	# 	pprint.pprint(node.events)
-	# 	print node.tick
-	# 	print node.end_tick
-	# 	print "\n"
 	return node_array
 
 def score_edges(edge_matrix,node_array):
@@ -319,7 +323,6 @@ def evaluate(results, answer_key):
 				chord_measures.append(chord_measure)
 		except KeyError:
 			error = True
-			EXTRAS[key[1]] = 1
 
 		if error:
 			return None
@@ -375,8 +378,14 @@ def main():
 	files = next(os.walk("kpcorpus"))[2]
 	print len(files)
 	files.remove(".DS_Store")
-	for f in files[20:30]:
+	for f in files:
+		print f
 		(events, answer_key) = read_midi_files("kpcorpus/%s" % f)
+		
+		# Don't bother
+		if answer_key == False:
+			continue
+
 		node_array = find_minimal_segments(events)
 
 		size = len(node_array)
@@ -399,5 +408,4 @@ def main():
 		score = evaluate(result, answer_key)
 		print f, score
 
-	print EXTRAS
 main()
