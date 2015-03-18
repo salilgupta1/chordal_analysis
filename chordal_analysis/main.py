@@ -307,26 +307,21 @@ def evaluate(results, answer_key):
 		max_chord = float("-inf")
 		min_chord = float("inf")
 
-		error = False
-		try:
-			for key in answer_key:
-				# calculate distance
-				time_measure = abs(result[0] - key[0])
-				max_time = max(max_time, time_measure)
-				min_time = min(min_time, time_measure)
-				
+		for key in answer_key:
+			# calculate distance
+			time_measure = abs(result[0] - key[0])
+			max_time = max(max_time, time_measure)
+			min_time = min(min_time, time_measure)
+			try:
 				chord_measure = euclidean_distance(SCORING[result[1]][0], SCORING[key[1]][0])
+				print chord_measure
+			except KeyError:
+				chord_measure = 5
+			max_chord = max(max_chord, chord_measure)
+			min_chord = min(min_chord, chord_measure)
 
-				max_chord = max(max_chord, chord_measure)
-				min_chord = min(min_chord, chord_measure)
-
-				time_measures.append(time_measure)
-				chord_measures.append(chord_measure)
-		except KeyError:
-			error = True
-
-		if error:
-			return None
+			time_measures.append(time_measure)
+			chord_measures.append(chord_measure)
 
 		# normalize data to between 0 and 10
 		chord_measures = normalize(min_chord, max_chord, chord_measures)
@@ -349,11 +344,9 @@ def evaluate(results, answer_key):
 		final_score += min_pen
 	# average penalities
 	final_score /= len(results)
-	final_score = 5 - final_score
+	final_score = 1 - final_score
 
 	return final_score
-
-	# get the min "penalty" and subtract from 10
 
 def normalize(mini, maxi, data):
 	norm_data = []
@@ -377,13 +370,12 @@ def euclidean_distance(x,y):
 
 def main():
 	files = next(os.walk("kpcorpus"))[2]
-	print len(files)
 	files.remove(".DS_Store")
-	for f in files:
+	for f in files[2:3]:
 		print f
 		(events, answer_key) = read_midi_files("kpcorpus/%s" % f)
 		
-		# Don't bother
+		# Don't bother to do chordal analysis
 		if answer_key == False:
 			continue
 
@@ -408,47 +400,44 @@ def main():
 		score = evaluate(result, answer_key)
 		print f, score
 
-		# SAVING OUR GUESS TO FILES IN /kpanswers/
-		old_pattern = midi.read_midifile("kpcorpus/%s" % f)
-		form = old_pattern.format
-		res = old_pattern.resolution
-		new_pattern = midi.Pattern(format=form, resolution=res, tracks=[])
-		new_track = midi.Track( )
-		new_pattern.append(new_track)
-		old_pattern.make_ticks_abs()
-		new_pattern.make_ticks_abs()
+		# # SAVING OUR GUESS TO FILES IN /kpanswers/
+		# old_pattern = midi.read_midifile("kpcorpus/%s" % f)
+		# form = old_pattern.format
+		# res = old_pattern.resolution
+		# new_pattern = midi.Pattern(format=form, resolution=res, tracks=[])
+		# new_track = midi.Track( )
+		# new_pattern.append(new_track)
+		# old_pattern.make_ticks_abs()
+		# new_pattern.make_ticks_abs()
 
-		i = 0
-		for edge in max_path:
-			if edge is not None:
-				end_tick = node_array[edge[1]].tick
+		# i = 0
+		# for edge in max_path:
+		# 	if edge is not None:
+		# 		end_tick = node_array[edge[1]].tick
 				
-				while i < len(old_pattern[0]):
-					#copy over from old file
-					event = old_pattern[0][i]
-					if event.tick <= end_tick:
-						new_track.append(event)
-						i+=1
-					else:
-						break
+		# 		while i < len(old_pattern[0]):
+		# 			#copy over from old file
+		# 			event = old_pattern[0][i]
+		# 			if event.tick <= end_tick:
+		# 				new_track.append(event)
+		# 				i+=1
+		# 			else:
+		# 				break
 
-				chord = "guess: " + (edge_matrix[edge[0]][edge[1]]).chord_name 
-				lyric = midi.LyricsEvent(tick=end_tick, text=chord, data = [ord(x) for x in list(chord)])	
-				new_track.append(lyric)
+		# 		chord = "guess: " + (edge_matrix[edge[0]][edge[1]]).chord_name 
+		# 		lyric = midi.LyricsEvent(tick=end_tick, text=chord, data = [ord(x) for x in list(chord)])	
+		# 		new_track.append(lyric)
 
-		while i < len(old_pattern[0])-1:
-			#copy over from old file
-			event = old_pattern[0][i]
-			new_track.append(event)
-			i+=1
+		# while i < len(old_pattern[0])-1:
+		# 	#copy over from old file
+		# 	event = old_pattern[0][i]
+		# 	new_track.append(event)
+		# 	i+=1
 
-		#add in end of track after changing ticks back to relative
-		new_pattern.make_ticks_rel()
-		eot = midi.EndOfTrackEvent(tick=0)
-		new_track.append(eot)
+		# #add in end of track after changing ticks back to relative
+		# new_pattern.make_ticks_rel()
+		# eot = midi.EndOfTrackEvent(tick=0)
+		# new_track.append(eot)
 
-		midi.write_midifile("kpanswers/%s" % f, new_pattern)
+		# midi.write_midifile("kpanswers/%s" % f, new_pattern)
 main()
-
-
-
