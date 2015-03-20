@@ -1,16 +1,24 @@
 from containers import *
-import midi, pprint, re, os, sys
+import midi, pprint, re, os, sys, csv
 from collections import Counter
+from pylab import *
 import scipy.spatial.distance as e
 
-# const vars
+# const for midi files
 NOTE_ON_EVENT = 144
 NOTE_OFF_EVENT = 128
 LYRIC_EVENT = 5
-MIN_SEGMENT_LENGTH  = 60
-PENALTY = .25
 
-all_templates = {
+# const for scoring
+MIN_SEGMENT_LENGTH  = 60
+MIN_SEG_PEN = 1
+
+# const for evaluation
+MISMATCH_PENALTY = 3
+UNKNOWN_LABEL_PENALTY = 11
+
+# const for templates
+ALL_TEMPLATES = {
 					"C_maj":[(0,4,7), .436],
 					"C_dom7":[(0,4,7,10), .219],
 					"C_min":[(0,3,7),.194],
@@ -102,7 +110,7 @@ SCORING = {
 	"D#_fdim":[(3,6,9,0),.044]
 }
 
-SCORING.update(all_templates)
+SCORING.update(ALL_TEMPLATES)
 
 def read_midi_files(path):
 	pattern = midi.read_midifile(path)
@@ -186,7 +194,7 @@ def score_edges(edge_matrix,node_array):
 						if segment_length > MIN_SEGMENT_LENGTH:
 							weights[note[0]] = 1
 						else:
-							weights[note[0]] = PENALTY
+							weights[note[0]] = MIN_SEG_PEN
 
 				# aggregate weights of notes across minimal segments in edge
 				note_weights += weights
@@ -195,7 +203,7 @@ def score_edges(edge_matrix,node_array):
 			max_chord_name = ""
 			
 			# iterate through templates
-			for chord,base in all_templates.iteritems():
+			for chord,base in ALL_TEMPLATES.iteritems():
 				P = 0
 				N = sum(note_weights.values())
 				M = 0 
@@ -221,8 +229,8 @@ def score_edges(edge_matrix,node_array):
 				elif max_score == (P - (M+N)):
 					# tie using Root Weight
 
-					old_root = all_templates[max_chord_name][0][0]
-					new_root = all_templates[chord][0][0]
+					old_root = ALL_TEMPLATES[max_chord_name][0][0]
+					new_root = ALL_TEMPLATES[chord][0][0]
 
 					weight_of_old = 0
 					weight_of_new = 0
@@ -239,8 +247,8 @@ def score_edges(edge_matrix,node_array):
 					elif weight_of_new == weight_of_old:
 						# tie, use highest probability
 
-						max_score = max_score if all_templates[max_chord_name][1] > base[1] else P - (M + N)
-						max_chord_name = max_chord_name if all_templates[max_chord_name][1] > base[1] else chord
+						max_score = max_score if ALL_TEMPLATES[max_chord_name][1] > base[1] else P - (M + N)
+						max_chord_name = max_chord_name if ALL_TEMPLATES[max_chord_name][1] > base[1] else chord
 
 			edge_matrix[row][col] = Edge(max_chord_name, max_score)
 
@@ -294,10 +302,10 @@ def remove_repeat_chords(max_path, edge_matrix):
 			pass
 		prev_edge = curr_edge
 
-
 def evaluate(results, answer_key):
 	# evaluate 
 	final_score = 0
+
 	for result in results:
 		time_measures = []
 		chord_measures = []
@@ -309,14 +317,14 @@ def evaluate(results, answer_key):
 
 		for key in answer_key:
 			# calculate distance
-			time_measure = abs(result[0] - key[0])
+			time_measure = e.euclidean(result[0],key[0])
 			max_time = max(max_time, time_measure)
 			min_time = min(min_time, time_measure)
 			try:
 				chord_measure = euclidean_distance(SCORING[result[1]][0], SCORING[key[1]][0])
-				print chord_measure
+				#print chord_measure
 			except KeyError:
-				chord_measure = 5
+				chord_measure = UNKNOWN_LABEL_PENALTY
 			max_chord = max(max_chord, chord_measure)
 			min_chord = min(min_chord, chord_measure)
 
@@ -328,7 +336,8 @@ def evaluate(results, answer_key):
 		time_measures = normalize(min_time, max_time, time_measures)
 
 		# add penalties together
-		penalties = [sum(x) for x in zip(chord_measures, time_measures)] 
+		penalties = [sum(x) for x in zip(chord_measures, time_measures)]
+		
 		# get min penalty
 		min_pen = float("inf")
 		min_index = 0
@@ -337,21 +346,22 @@ def evaluate(results, answer_key):
 				min_pen = pen
 				min_index = index
 			elif pen == min_pen:
+				
 				# if tie then get one with min time measure
 				if time_measures[index] < time_measures[min_index]:
 					min_pen = pen
 					min_index = index
 		final_score += min_pen
+	
 	# average penalities
 	final_score /= len(results)
-	final_score = 1 - final_score
 
 	return final_score
 
 def normalize(mini, maxi, data):
 	norm_data = []
 	for d in data:
-		norm = abs(d - mini)*10/abs(maxi - mini)
+		norm = abs(d - mini)*0.5/abs(maxi - mini)
 		norm_data.append(norm)
 	return norm_data
 
@@ -359,20 +369,71 @@ def euclidean_distance(x,y):
 	len_x = len(x)
 	len_y = len(y)
 
+	add_penalty = False
 	if len_x > len_y:
-		y = list(y)
-		y.append(-100)
-	elif len_y > len_x:
 		x = list(x)
-		x.append(-100)
+		x.pop()
+		add_penalty = True
+	elif len_y > len_x:
+		y = list(y)
+		y.pop()
+		add_penalty = True
 
-	return e.euclidean(x,y)
+	distance = e.euclidean(x,y)
+	if add_penalty:
+		return distance + MISMATCH_PENALTY
+	return distance    
+
+def save_results(max_path, edge_matrix):
+	# SAVING OUR GUESS TO FILES IN /kpanswers/
+	old_pattern = midi.read_midifile("kpcorpus/%s" % f)
+	form = old_pattern.format
+	res = old_pattern.resolution
+	new_pattern = midi.Pattern(format=form, resolution=res, tracks=[])
+	new_track = midi.Track( )
+	new_pattern.append(new_track)
+	old_pattern.make_ticks_abs()
+	new_pattern.make_ticks_abs()
+
+	i = 0
+	for edge in max_path:
+		if edge is not None:
+			end_tick = node_array[edge[1]].tick
+			
+			while i < len(old_pattern[0]):
+				#copy over from old file
+				event = old_pattern[0][i]
+				if event.tick <= end_tick:
+					new_track.append(event)
+					i+=1
+				else:
+					break
+
+			chord = "guess: " + (edge_matrix[edge[0]][edge[1]]).chord_name 
+			lyric = midi.LyricsEvent(tick=end_tick, text=chord, data = [ord(x) for x in list(chord)])	
+			new_track.append(lyric)
+
+	while i < len(old_pattern[0])-1:
+		#copy over from old file
+		event = old_pattern[0][i]
+		new_track.append(event)
+		i+=1
+
+	#add in end of track after changing ticks back to relative
+	new_pattern.make_ticks_rel()
+	eot = midi.EndOfTrackEvent(tick=0)
+	new_track.append(eot)
+
+	midi.write_midifile("kpanswers/%s" % f, new_pattern)
 
 def main():
 	files = next(os.walk("kpcorpus"))[2]
 	files.remove(".DS_Store")
-	for f in files[2:3]:
-		print f
+
+	scores = []
+
+	print "Starting"
+	for f in files:
 		(events, answer_key) = read_midi_files("kpcorpus/%s" % f)
 		
 		# Don't bother to do chordal analysis
@@ -382,13 +443,12 @@ def main():
 		node_array = find_minimal_segments(events)
 
 		size = len(node_array)
-		edge_matrix = edge_matrix = [[float("-inf") for i in range(size)] for i in range(size)]
+		edge_matrix = [[float("-inf") for i in range(size)] for i in range(size)]
 
 		score_edges(edge_matrix,node_array)
 
 		max_path = find_longest_path((0,1), (size-2,size-1), edge_matrix)
 
-		# remove repeated chord_names
 		remove_repeat_chords(max_path, edge_matrix)
 
 		result = []
@@ -398,46 +458,15 @@ def main():
 				result.append([node_array[edge[1]].tick, edge_matrix[edge[0]][edge[1]].chord_name])
 
 		score = evaluate(result, answer_key)
-		print f, score
+		scores.append(score)
 
-		# # SAVING OUR GUESS TO FILES IN /kpanswers/
-		# old_pattern = midi.read_midifile("kpcorpus/%s" % f)
-		# form = old_pattern.format
-		# res = old_pattern.resolution
-		# new_pattern = midi.Pattern(format=form, resolution=res, tracks=[])
-		# new_track = midi.Track( )
-		# new_pattern.append(new_track)
-		# old_pattern.make_ticks_abs()
-		# new_pattern.make_ticks_abs()
+		print "%s is done: %f" % (f,score)
+	pprint.pprint(scores)
 
-		# i = 0
-		# for edge in max_path:
-		# 	if edge is not None:
-		# 		end_tick = node_array[edge[1]].tick
-				
-		# 		while i < len(old_pattern[0]):
-		# 			#copy over from old file
-		# 			event = old_pattern[0][i]
-		# 			if event.tick <= end_tick:
-		# 				new_track.append(event)
-		# 				i+=1
-		# 			else:
-		# 				break
+	figure()
+	title('Penalties for KpCorpus where Min Segement Penalty is 1')
+	xlabel('Penalty')
+	boxplot(scores, 0, 'rs', 0)
+	show()
 
-		# 		chord = "guess: " + (edge_matrix[edge[0]][edge[1]]).chord_name 
-		# 		lyric = midi.LyricsEvent(tick=end_tick, text=chord, data = [ord(x) for x in list(chord)])	
-		# 		new_track.append(lyric)
-
-		# while i < len(old_pattern[0])-1:
-		# 	#copy over from old file
-		# 	event = old_pattern[0][i]
-		# 	new_track.append(event)
-		# 	i+=1
-
-		# #add in end of track after changing ticks back to relative
-		# new_pattern.make_ticks_rel()
-		# eot = midi.EndOfTrackEvent(tick=0)
-		# new_track.append(eot)
-
-		# midi.write_midifile("kpanswers/%s" % f, new_pattern)
 main()
