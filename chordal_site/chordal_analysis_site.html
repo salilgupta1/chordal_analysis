@@ -29,9 +29,10 @@
 				<li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
 				<li><a href="#dataset">Data Set</a></li>
 				<li><a href="#methodology">Methodology</a></li>
+				<li><a href="#performance">Performance Analysis</a></li>
 				<li><a href="#results">Results</a></li>
 				<li><a href="#conclusion">Conclusion</a></li>
-				<li><a href="">Abstract</a></li>
+				<li><a href="ChordalAnalysis_Paper_1.pdf">Abstract</a></li>
 				</ul>
 			</div>
 		</div><!-- /.container-fluid -->
@@ -42,6 +43,10 @@
 		<h4>Instructor Bryan Pardo</h4>
 		<div class="container">
 			<div class = "row">
+				<div class ="col-md-4">
+					<h3 class="col">Anna Selonick </h3>
+					<h4> abselonick@gmail.com</h4>
+				</div>
 				<div class="col-md-4">
 					<h3> Salil Gupta</h3>
 					<h4>salil.gupta323@gmail.com</h4>
@@ -50,25 +55,21 @@
 					<h3 class="col">Nikita Patel</h3>
 					<h4> nikitaPatel2017@u.northwestern.edu</h4>
 				</div>
-				<div class ="col-md-4">
-					<h3 class="col">Anna Selonick </h3>
-					<h4> abselonick@gmail.com</h4>
-				</div>
 			</div>
 		</div>
 	</div>
 	<div class='container'>
 		<article id="paper">
-			<section id ="#overview">
+			<section id ="overview">
 				<h2>Overview</h2>
 				<p>
-					In the study of classical western music, harmonic analysis is an important part of understanding a piece. Identifying tonal centers and chords are equivalent to being able to understand the meaning of a sentence. This is a skill that musicians take years mastering, which makes creating an algorithm for it even more difficult. Noticing subtle cues in the music while knowing when notes are and are not important is part of a musician&#39;s challenge. This is what makes creating an algorithm to identify tonal centers and chords an interesting problem. The study takes a task usually done by musicians through qualitative analysis and turns it into a completely objectified process. This could be useful in many scenarios where one would want to quickly get the chord structure of a piece of music. For example, a classical musician may need to identify chords and tonal structure of a piece in order to play it and understand it better. This algorithm will save the musician time and allow them to skip chord identification and move straight to understanding how parts of the piece fit together. Another case could be if someone wanted to convert a pop song into guitar tabs but doesn’t know how to read music. This would allow them to take the first step towards transforming a notated piece of music into something they understand. </p>
+					In the study of classical western music, harmonic analysis is an important part of understanding a piece. Identifying tonal centers and chords are equivalent to being able to understand the meaning of a sentence. This is a skill that musicians take years mastering, which makes creating an algorithm for it even more difficult. Noticing subtle cues in the music while knowing when notes are and are not important is part of a musician&#39;s challenge. This is what makes creating an algorithm to identify tonal centers and chords an interesting problem. The study takes a task usually done by musicians through qualitative analysis and turns it into a completely objectified process. This could be useful in many scenarios where one would want to quickly get the chord structure of a piece of music. For example, a classical musician may need to identify chords and tonal structure of a piece in order to play it and understand it better. This algorithm will save the musician time and allow them to skip chord identification and move straight to understanding how parts of the piece fit together. Another case could be if someone wanted to convert a pop song into guitar tabs but does not know how to read music. This would allow them to take the first step towards transforming a notated piece of music into something they understand. </p>
 
 
 					<p>We present an algorithm for chordal analysis that uses the HarmAn segmentation method as discussed in Pardo and Birmingham&#39;s work. Our algorithm will return the root name and quality of chord. Beyond what Pardo and Birmingham do, our algorithm will attempt to take musical structures such as passing tones and grace notes into account when performing the chordal analysis. </p>
 			</section>
 
-			<section id ="#dataset">
+			<section name ="dataset">
 				<h2>Data Set </h2>
 				<p>
 					The dataset used to test our algorithm is 47 excerpts from Tonal
@@ -83,9 +84,7 @@
 
 					produce.
 				</p> 
-				<p>
-					The software package we use is to manipulate midi files is python-midi by github user vishnubob. The package allows users to read in midi files as well as create new midi files. Midi files that are read in are stored in a pattern object, and in our case each pattern object contains one track. The track consists of multiple events that are chronologically ordered by tick. Each event stores the pitch, velocity, and tick. It is also important to note that some midi files only contain note on events, where a velocity of zero functionally means note off. 
-				</p>
+
 			</section>
 			<section id='#methodology'>
 				<h2>Methodology</h2>	
@@ -126,10 +125,10 @@
 		To account for slight inaccuracies in the way midi files were written and musical structures like passing tones and grace notes, we also factored in minimal segment length into note weights. For each piece of music, the smallest minimal segment length was recorded. For any note in a minimal segment equal to this recorded length, only 0.25 is added to the weight instead of 1. 
 		The second step in our scoring an edge is to give a score to each template based on note weights. For each individual template, the score is calculated using this formula:
 		</p>
-<center><p >S = P &#45; (M + N)</p></center>
-<p>
-Where S is the score, P is positive evidence, N is negative evidence, and M is misses. P is calculated by adding the weights of all the notes in the segment that are also in the template. N is calculated by adding the weights of all the notes in the segment that are not found in the template. M is the number of notes in the template that are not matched by any note in the segment. While calculating P and N, octave does not matter, so the note mod12 is compared to the elements of the template. 
-Once every template has a score for the given segment, the highest score is assigned to the edge. In the event of a tie, we have two tie breaking mechanisms. The first takes into account the probabilities discussed before. This is essentially choosing the template for the chord that is most likely to appear in classical music (the dataset we are using for testing). The second tiebreaker looks at the root note of each template (the first element of a template). When deciding between two templates, the template with a higher weight for the root note will be chosen.
+					<center><p >S = P &#45; (M + N)</p></center>
+						<p>
+							Where S is the score, P is positive evidence, N is negative evidence, and M is misses. P is calculated by adding the weights of all the notes in the segment that are also in the template. N is calculated by adding the weights of all the notes in the segment that are not found in the template. M is the number of notes in the template that are not matched by any note in the segment. While calculating P and N, octave does not matter, so the note mod12 is compared to the elements of the template. 
+							Once every template has a score for the given segment, the highest score is assigned to the edge. In the event of a tie, we have two tie breaking mechanisms. The first takes into account the probabilities discussed before. This is essentially choosing the template for the chord that is most likely to appear in classical music (the dataset we are using for testing). The second tiebreaker looks at the root note of each template (the first element of a template). When deciding between two templates, the template with a higher weight for the root note will be chosen.
 
 						</p>
 						<h5> Basic example of scoring a template </h5>
@@ -156,6 +155,20 @@ Once every template has a score for the given segment, the highest score is assi
 						</figure>
 					</div>
 				</div>
+			</section>
+			<section id="performance">
+				<h2> Performance Analysis</h2>
+				<div class='row'>
+					<div class='col-md-12'>
+						<p>
+							The performance of the algorithm was determined by two factors: how similar the chord chosen was to the real chord and how similar the segmentation was.  In order to determine similarity we used a Euclidean distance metric. For each chord label returned by the algorithm we performed a Euclidean distance between that chord and its segment time and each chord and segment time in the answer. We then normalized the two distance measures and added them together. This then gave us a penalty, which we subtracted from one to give us a score for the piece.
+						</p><p>
+When we came across labels that we did not account for, such as X_Ger6, we gave a distance measure of eleven for the similarity of the chords. Eleven was chosen because this was calculated to be the average distance measure found for the Euclidean distance of all the chords, and we assumed that our algorithm performs at the average. Also, when a label returned by the algorithm was a 3-note chord while the label given by the answer key was a 4-note chord, or vice versa, we added three to the distance measure of the chords. Three was chosen because if we assume that each note in a 4-note chord provides a quarter of the penalty we can then use a quarter of the average distance measure, which is three. 
+
+						</p>
+					</div>
+				</div>
+
 			</section>
 			<section id ="#results">
 				<h2>Results</h2>
