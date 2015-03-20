@@ -1,87 +1,227 @@
-
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Choradal Analysis</title>
-	<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="style.css">
-<script src="script.js" type="text/javascript"></script> 
+	<head>
+		<title>Chordal Analysis</title>
+			<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+		<link rel="stylesheet" href="style.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<head>
+		<!-- Latest compiled and minified JavaScript -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	<head>
 
-<body>
-	<div class="splash-page" id ="splash" onclick="hide()">
-		<h2> Special Thanks to vsishnubob </h2>
-		<img src = "https://avatars3.githubusercontent.com/u/188410?v=3&s=400">
-	</div>
+	<body>
+
 	<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    <!--  <a class="navbar-brand" href="#"></a>-->
-    </div>
-     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Introduction <span class="sr-only">(current)</span></a></li>
-        <li><a href="#algorithm">Algorithm</a></li>
-        <li><a href="#results">Results</a></li>
-         <li><a href="#conclusion">Conclusion</a></li>
-          <li><a href="#contacts">Contacts</a></li>
-      </ul>
+		<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				</button>
 
-    </div>
-
-
-  </div><!-- /.container-fluid -->
-</nav>
-<div class="page-header">
-	<h2> Chordal Analysis </h2>
-	<h3> EECS 352 </h3>
-	<div class="container">
-		<div class = "row">
-			<div class="col-md-4">
-				<h3> Salil Gupta</h3>
-				<h4>salil.gupta323@gmail.com</h4>
-				<h4> Northwestern University</h4>
 			</div>
-			<div class ="col-md-4">
-				<h3 class="col">Nikita Patel</h3>
-				<h4> nikitaPatel2017@u.northwestern.edu</h4>
-				<h4> Northwestern University</h4>
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+				<li><a href="#dataset">Data Set</a></li>
+				<li><a href="#methodology">Methodology</a></li>
+				<li><a href="#results">Results</a></li>
+				<li><a href="#conclusion">Conclusion</a></li>
+				<li><a href="">Abstract</a></li>
+				</ul>
 			</div>
-			<div class ="col-md-4">
-				<h3 class="col">Anna Selonick </h3>
-				<h4> abselonick@gmail.com</h4>
-				<h4> Northwestern University</h4>
+		</div><!-- /.container-fluid -->
+	</nav>
+	<div class="page-header">
+		<h1> Chordal Analysis </h1>
+		<h4> <a href="http://cs.northwestern.edu/~pardo/courses/eecs352">Northwestern University EECS 352</a></h4>
+		<h4>Instructor Bryan Pardo</h4>
+		<div class="container">
+			<div class = "row">
+				<div class="col-md-4">
+					<h3> Salil Gupta</h3>
+					<h4>salil.gupta323@gmail.com</h4>
+				</div>
+				<div class ="col-md-4">
+					<h3 class="col">Nikita Patel</h3>
+					<h4> nikitaPatel2017@u.northwestern.edu</h4>
+				</div>
+				<div class ="col-md-4">
+					<h3 class="col">Anna Selonick </h3>
+					<h4> abselonick@gmail.com</h4>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<article id="paper">
-<section id ="#introdution">
-	<h2>Introduction</h2>
-</section>
-<section id ="#algorithm">
-	<h2>Algorithm</h2>
-</section>
+	<div class='container'>
+		<article id="paper">
+			<section id ="#overview">
+				<h2>Overview</h2>
+				<p>
+					In the study of classical western music, harmonic analysis is an important part of understanding a piece. Identifying tonal centers and chords are equivalent to being able to understand the meaning of a sentence. This is a skill that musicians take years mastering, which makes creating an algorithm for it even more difficult. Noticing subtle cues in the music while knowing when notes are and are not important is part of a musician&#39;s challenge. This is what makes creating an algorithm to identify tonal centers and chords an interesting problem. The study takes a task usually done by musicians through qualitative analysis and turns it into a completely objectified process. This could be useful in many scenarios where one would want to quickly get the chord structure of a piece of music. For example, a classical musician may need to identify chords and tonal structure of a piece in order to play it and understand it better. This algorithm will save the musician time and allow them to skip chord identification and move straight to understanding how parts of the piece fit together. Another case could be if someone wanted to convert a pop song into guitar tabs but doesn’t know how to read music. This would allow them to take the first step towards transforming a notated piece of music into something they understand. </p>
 
-<section id ="#results">
-	<h2>Restults</h2>
-</section>
-<section id ="#conclusion">
-	<h2>Conclusion</h2>
-</section>
-<article>
-</body>
+
+					<p>We present an algorithm for chordal analysis that uses the HarmAn segmentation method as discussed in Pardo and Birmingham&#39;s work. Our algorithm will return the root name and quality of chord. Beyond what Pardo and Birmingham do, our algorithm will attempt to take musical structures such as passing tones and grace notes into account when performing the chordal analysis. </p>
+			</section>
+
+			<section id ="#dataset">
+				<h2>Data Set </h2>
+				<p>
+					The dataset used to test our algorithm is 47 excerpts from Tonal
+
+					Harmony by Stefan Kostka and Dorothy Payne (the same ones 
+
+					used in Professor Pardo&#39;s work described in &#34;Algorithms for Chordal 
+
+					Analysis&#34;). These excerpts have been written as midi files, with 
+
+					lyrics that reflect the correct chords that the algorithm should 
+
+					produce.
+				</p> 
+				<p>
+					The software package we use is to manipulate midi files is python-midi by github user vishnubob. The package allows users to read in midi files as well as create new midi files. Midi files that are read in are stored in a pattern object, and in our case each pattern object contains one track. The track consists of multiple events that are chronologically ordered by tick. Each event stores the pitch, velocity, and tick. It is also important to note that some midi files only contain note on events, where a velocity of zero functionally means note off. 
+				</p>
+			</section>
+			<section id='#methodology'>
+				<h2>Methodology</h2>	
+				<div class='row'>
+					<div class='col-md-12'>
+						<h4>Segmentation</h4>
+						<p>
+							In tonal musical notation, each note in the chromatic scale and its twelve pitch classes are represented with integer notation and modulo-12 arithmetic. The pitch classes and integer names are shown below. We created 72 templates to represent 6 base chords each of the 12 keys in classical western music. The templates contain either three or four integers, and represent a major, minor, diminished, dominant seventh, half diminished seventh, or fully diminished seventh chord.
+						</p>
+						<p>
+							The first part of the algorithm deals with segmentation of the music. While segmentation and labeling is actually done together, it makes the most sense to discuss the segmentation process first. 
+							A partition is a point in time where there is harmonic change in the music, which is when one or more notes change. In a midi file, this is marked by a note on or note off event. A minimal segment is everything in between two consecutive partition points. These two structures can be seen below.
+						</p>
+					</div>
+				</div>
+				<div class='row'>
+					<div class='col-md-6'>
+						<figure>
+							<img src="keyboard.jpg" width='100%' style="margin-top:0%; margin-bottom:-5%;">
+							<figcaption style='margin-left:7%; margin-right:7%;'> <b>Integer representation of each of the twelve pitch classes in the western music scale</b></figcaption>
+						</figure>
+					</div>
+
+					<div class='col-md-6'>
+						<figure>
+							<img src="partitions.jpg" width='100%' style="margin-top:0%; margin-bottom:-5%;">
+							<figcaption style='margin-left:7%; margin-right:7%;'><b>Partition points and minimal segments in an excerpt from our dataset.</b></figcaption>
+						</figure>
+					</div>
+				</div>
+				<br>
+				<div class='row'>
+					<div class='col-md-12'>
+						<h4>Edge Scoring</h4>
+						<p>
+							The scoring process for each edge, or segment, begins with calculating a weight for each note that appears in that segment. These note weights are determined by counting the number of minimal segments that the note appears in the given segment. The same note in different octaves will each be given a separate weight.	 </p>
+							<p>
+		To account for slight inaccuracies in the way midi files were written and musical structures like passing tones and grace notes, we also factored in minimal segment length into note weights. For each piece of music, the smallest minimal segment length was recorded. For any note in a minimal segment equal to this recorded length, only 0.25 is added to the weight instead of 1. 
+		The second step in our scoring an edge is to give a score to each template based on note weights. For each individual template, the score is calculated using this formula:
+		</p>
+<center><p >S = P &#45; (M + N)</p></center>
+<p>
+Where S is the score, P is positive evidence, N is negative evidence, and M is misses. P is calculated by adding the weights of all the notes in the segment that are also in the template. N is calculated by adding the weights of all the notes in the segment that are not found in the template. M is the number of notes in the template that are not matched by any note in the segment. While calculating P and N, octave does not matter, so the note mod12 is compared to the elements of the template. 
+Once every template has a score for the given segment, the highest score is assigned to the edge. In the event of a tie, we have two tie breaking mechanisms. The first takes into account the probabilities discussed before. This is essentially choosing the template for the chord that is most likely to appear in classical music (the dataset we are using for testing). The second tiebreaker looks at the root note of each template (the first element of a template). When deciding between two templates, the template with a higher weight for the root note will be chosen.
+
+						</p>
+						<h5> Basic example of scoring a template </h5>
+						<p>
+							To find the score of the template <0 4 7> in the given edge example below, one would need to find the positive evidence(P), negative evidence(N), and misses(M).
+							<p>
+							P = 10      N = 2      M = 1
+							</p>
+							<p>
+							S = P - (M + N)
+							</p>
+							<p>
+							S = 11 - (1 + 2)
+							</p>
+							<p>
+							Score = 7
+							</p>
+						</p>
+					</div>
+					<div class='col-md-12'>
+						<figure>
+							<img src="methodology.png" width='100%' style="margin-left:-2%">
+							<figcaption style='margin-left:1%; margin-right:7%;'><b>Example segment where the note weights are arbitrary numbers</b></figcaption>
+						</figure>
+					</div>
+				</div>
+			</section>
+			<section id ="#results">
+				<h2>Results</h2>
+
+				<div class='row'>
+					<div class='col-md-12'>
+						<p>
+							We found the average penalty was 0.05 where the minimum possible penalty is 0 and the maximum penalty is 0.20. The standard deviation of the penalties was 0.037 while the median of the data is 0.049. The distribution of the data can be seen in below.  The outlier in the box and whisker plot can be ignored because the answer key for that excerpt was incomplete. 
+						</p>
+
+						<figure>
+							<img src="chordal_analysis.png" width='40%'>
+							<figcaption style='margin-left:0%; margin-right:7%;'><b>Plot of penalties when performance analysis was done on the dataset from <i>Tonal Harmony</i></b></figcaption>
+						</figure>
+					</div>	
+				</div>
+				<br>
+				<div class='row'>
+					<div class='col-md-12'>
+						Excerpts that scored well with our algorithm tended not to have chords that we did not account for in our list of templates (i.e. X_Ger6). Excerpts also did better if they had a clearer transition between different chords and if the notes within a segment very clearly matched a single template.
+					</div>
+					<div class='col-md-12'>
+						<div class='col-md-6'>
+							<figure>
+								<img src="bad.png" width='100%'>
+								<figcaption><b> An example of poor analysis where the output from the algorithm is related to the answer to its left</b></figcaption>
+							</figure>
+						</div>
+						<div class='col-md-1'></div>
+						<div class='col-md-6'>
+							<figure>
+								<img src="good.png" width='100%'>
+								<figcaption><b> An example of good analysis where the output from the algorithm is related to the answer to its left</b></figcaption>
+							</figure>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id ="#conclusion">
+				<h2>Conclusion</h2>
+				<p>
+					An algorithm was presented for automatically performing chordal 
+
+					analysis on an excerpt of tonal music. Based off of previous 
+
+					research and the HarmAn segmentation algorithm, this algorithm 
+
+					also attempts to handle musical structures such as passing tones 
+
+					and grace notes. When tested over a database of 48 midi files, 
+
+					results. The algorithm can identify six base chord types, and is based on the assumption that the music being analyzed is tonal. In
+
+					contrast to most other methods, segmentation of the music and 
+
+					labeling of chords is done simultaneously. The method employs 
+
+					two tie-breaking methods. Finally, further work can be done to 
+
+					improve the accuracy of the segmentation algorithm.
+				</p>
+			</section>
+			<div id='footer'>
+				Copyright 2015 | Source code: <a href="https://github.com/salilgupta1/chordal_analysis">Github</a> 
+			</div>
+		<article>
+	</div>
+	</body>
 </html>
-
